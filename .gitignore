@@ -5,6 +5,7 @@
 **/.venv/
 **/.env
 **/.dart_tool/
+**/.flutter-plugins-dependencies
 **/build/
 **/package-lock.json
 **/yarn.lock
