@@ -16,12 +16,12 @@ class WeddingRepository {
       'phone': phone,
       'password': password,
     });
-    final wedding = res.data['user']['wedding_id'] != null
-        ? await _fetchWeddingFromMe()
-        : null;
+    final token = res.data['token'] as String;
+    final user = WeddingUser.fromJson(Map<String, dynamic>.from(res.data['user'] as Map));
+    final wedding = user.hasWedding ? await _fetchWeddingFromMe(token: token) : null;
     return (
-      token: res.data['token'] as String,
-      user: WeddingUser.fromJson(Map<String, dynamic>.from(res.data['user'] as Map)),
+      token: token,
+      user: user,
       wedding: wedding,
     );
   }
@@ -53,8 +53,13 @@ class WeddingRepository {
     );
   }
 
-  Future<Wedding?> _fetchWeddingFromMe() async {
-    final res = await _dio.get('/api/auth/me');
+  Future<Wedding?> _fetchWeddingFromMe({String? token}) async {
+    final res = await _dio.get(
+      '/api/auth/me',
+      options: token != null
+          ? Options(headers: {'Authorization': 'Bearer $token'})
+          : null,
+    );
     final weddingJson = res.data['wedding'];
     if (weddingJson == null) return null;
     return Wedding.fromJson(Map<String, dynamic>.from(weddingJson as Map));
